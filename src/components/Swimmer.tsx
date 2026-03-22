@@ -87,7 +87,7 @@ export default function Swimmer() {
 
     // Body Pitch and Roll
     if (bodyRef.current) {
-      bodyRef.current.rotation.x = THREE.MathUtils.degToRad(state.currentRollAngle);
+      bodyRef.current.rotation.x = THREE.MathUtils.degToRad(-state.currentRollAngle);
       bodyRef.current.rotation.z = THREE.MathUtils.degToRad(state.currentPitch);
     }
 
@@ -138,7 +138,7 @@ export default function Swimmer() {
           <group ref={leftShoulderRef}>
             <mesh position={[0.35, 0, 0]}>
               <boxGeometry args={[0.7, 0.15, 0.15]} />
-              <meshStandardMaterial color="#e2e8f0" roughness={0.7} metalness={0.1} />
+              <meshStandardMaterial color="red" roughness={0.7} metalness={0.1} />
             </mesh>
             {/* Elbow pivot */}
             <group position={[0.7, 0, 0]} ref={leftElbowRef}>
@@ -156,7 +156,7 @@ export default function Swimmer() {
           <group ref={rightShoulderRef}>
             <mesh position={[0.35, 0, 0]}>
               <boxGeometry args={[0.7, 0.15, 0.15]} />
-              <meshStandardMaterial color="#e2e8f0" roughness={0.7} metalness={0.1} />
+              <meshStandardMaterial color="blue" roughness={0.7} metalness={0.1} />
             </mesh>
             {/* Elbow pivot */}
             <group position={[0.7, 0, 0]} ref={rightElbowRef}>
