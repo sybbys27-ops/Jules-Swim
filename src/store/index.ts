@@ -191,6 +191,15 @@ export const useStore = create<State>((set, get) => ({
         currentRollAngle = rollingAngle;
         currentState = 'InitialGlideHold';
         glideHoldRemaining = glideHold;
+
+        // If glideHold is 0, we can immediately transition
+        if (glideHoldRemaining <= 0) {
+          currentState = 'Running';
+          rollingDirection = -1;
+          leftArmTimeInCycle = 0;
+          firstStrokeStarted = true;
+          currentSpeedKmh = Math.max(MIN_SPEED_KMH, currentSpeedKmh + calculateSpeedBoost(-currentRollAngle, bodyPitch));
+        }
       }
     } else if (currentState === 'InitialGlideHold') {
       glideHoldRemaining -= dt;
@@ -216,37 +225,41 @@ export const useStore = create<State>((set, get) => ({
         if (rollingDirection === 1 && currentRollAngle >= rollingAngle) {
           currentRollAngle = rollingAngle;
           glideHoldRemaining = glideHold;
+          if (glideHoldRemaining <= 0) {
+            rollingDirection = -1;
+          }
         } else if (rollingDirection === -1 && currentRollAngle <= -rollingAngle) {
           currentRollAngle = -rollingAngle;
           glideHoldRemaining = glideHold;
+          if (glideHoldRemaining <= 0) {
+            rollingDirection = 1;
+          }
         }
       }
 
       // 3. Stroke Scheduler
-      // When left stroke starts, next stroke is right arm after strokeInterval.
+      // Arms repeat strictly every (2 * strokeInterval). They are offset by strokeInterval.
       if (leftArmTimeInCycle >= 0) {
         const prevTime = leftArmTimeInCycle;
         leftArmTimeInCycle += dt;
 
-        // Check if we passed the stroke interval to start the right arm
+        // Right arm is triggered precisely at strokeInterval from left arm's cycle.
         if (prevTime < strokeInterval && leftArmTimeInCycle >= strokeInterval) {
-          // Right arm starts
           rightArmTimeInCycle = 0;
           currentSpeedKmh = Math.max(MIN_SPEED_KMH, currentSpeedKmh + calculateSpeedBoost(currentRollAngle, bodyPitch));
         }
 
-        // Reset left arm if it finishes the full interval cycle (which is 2 * strokeInterval)
+        // Reset left arm cycle when it reaches 2 * strokeInterval
         if (leftArmTimeInCycle >= strokeInterval * 2) {
-            leftArmTimeInCycle = 0;
-            currentSpeedKmh = Math.max(MIN_SPEED_KMH, currentSpeedKmh + calculateSpeedBoost(-currentRollAngle, bodyPitch));
+          leftArmTimeInCycle -= strokeInterval * 2;
+          currentSpeedKmh = Math.max(MIN_SPEED_KMH, currentSpeedKmh + calculateSpeedBoost(-currentRollAngle, bodyPitch));
         }
       }
 
       if (rightArmTimeInCycle >= 0) {
         rightArmTimeInCycle += dt;
         if (rightArmTimeInCycle >= strokeInterval * 2) {
-          // This actually shouldn't trigger if left arm handles the whole cycle reset,
-          // but we can wrap it just in case. The right arm's cycle length is also 2*strokeInterval
+          rightArmTimeInCycle -= strokeInterval * 2;
         }
       }
     }
