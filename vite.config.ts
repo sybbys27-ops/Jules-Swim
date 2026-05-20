@@ -5,6 +5,7 @@ import { viteSingleFile } from 'vite-plugin-singlefile';
 
 export default defineConfig({
   plugins: [react(), tailwindcss(), viteSingleFile()],
+  base: '/Jules-Swim/',
   build: {
     target: 'esnext',
     assetsInlineLimit: 100000000,
