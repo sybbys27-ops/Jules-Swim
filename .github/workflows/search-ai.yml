@@ -31,7 +31,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # 사용 중인 Node 버전 (보통 20 추천)
+          node-version: 22 # 사용 중인 Node 버전 (보통 20 추천)
           cache: 'npm'
 
       - name: Install dependencies
